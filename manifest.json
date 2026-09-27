@@ -1,17 +1,17 @@
 {
-  "short_name": "MDProcessor",
-  "name": "Local-First Markdown Word Processor",
+  "short_name": "MobileDoc",
+  "name": "MobileDoc Rich Text Editor",
   "icons": [
     {
-      "src": "icon.png",
+      "src": "https://jsdelivr.net",
       "type": "image/png",
       "sizes": "512x512",
       "purpose": "any maskable"
     }
   ],
   "start_url": "./index.html",
-  "background_color": "#ffffff",
+  "background_color": "#f9fafb",
   "display": "standalone",
   "theme_color": "#4f46e5",
-  "description": "An installable Markdown editor featuring a tiered auto-save version history."
+  "description": "A mobile-optimised rich text processor with a tiered automatic saving engine."
 }
