@@ -1,19 +1,23 @@
-const CACHE_NAME = 'md-pwa-cache-v1';
+const CACHE_NAME = 'mobiledoc-v1';
 const ASSETS = [
   './index.html',
   './manifest.json',
-  'https://cdn.jsdelivr.net/npm/marked/marked.min.js',
-  'https://cdn.tailwindcss.com'
+  'https://jsdelivr.net',
+  'https://unpkg.com'
 ];
 
 self.addEventListener('install', (e) => {
   e.waitUntil(
-    caches.open(CACHE_NAME).then((cache) => cache.addAll(ASSETS))
+    caches.open(CACHE_NAME).then((cache) => {
+      return cache.addAll(ASSETS);
+    })
   );
 });
 
 self.addEventListener('fetch', (e) => {
   e.respondWith(
-    caches.match(e.request).then((res) => res || fetch(e.request))
+    caches.match(e.request).then((response) => {
+      return response || fetch(e.request);
+    })
   );
 });
