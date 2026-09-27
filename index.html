@@ -1,229 +1,206 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Markdown Word Processor PWA</title>
-    <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#4f46e5">
-    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <style>
-        .preview-body h1 { font-size: 2em; font-weight: bold; margin-bottom: 0.5em; border-bottom: 1px solid #e5e7eb; padding-bottom: 0.2em; }
-        .preview-body h2 { font-size: 1.5em; font-weight: bold; margin-top: 1em; margin-bottom: 0.5em; }
-        .preview-body h3 { font-size: 1.25em; font-weight: bold; margin-top: 1em; margin-bottom: 0.5em; }
-        .preview-body p { margin-bottom: 1em; line-height: 1.6; }
-        .preview-body ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
-        .preview-body ol { list-style-type: decimal; padding-left: 1.5em; margin-bottom: 1em; }
-        .preview-body blockquote { border-left: 4px solid #4f46e5; padding-left: 1em; color: #4b5563; font-style: italic; margin-bottom: 1em; }
-        .preview-body code { background-color: #f3f4f6; padding: 0.2em 0.4em; border-radius: 0.25rem; font-family: monospace; font-size: 0.9em; }
-    </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mobile Rich Text PWA</title>
+  <link rel="manifest" href="manifest.json">
+  <meta name="theme-color" content="#4f46e5">
+  <!-- Tailwind CSS for modern mobile-first styling -->
+  <script src="https://jsdelivr.net"></script>
+  <!-- Lucide Icons for clean UI elements -->
+  <script src="https://unpkg.com"></script>
+  <style>
+    /* Prevent default pull-to-refresh on mobile browsers */
+    body {
+      overscroll-behavior-y: contain;
+      -webkit-tap-highlight-color: transparent;
+    }
+    /* Simple custom styling to make contenteditable mimic a premium textarea */
+    [contenteditable]:empty:before {
+      content: attr(placeholder);
+      color: #9ca3af;
+      pointer-events: none;
+      display: block;
+    }
+  </style>
 </head>
-<body class="bg-gray-50 text-gray-900 font-sans h-screen flex flex-col">
-    <!-- Navbar -->
-    <header class="bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shrink-0 shadow-sm">
-        <div class="flex items-center space-x-3">
-            <span class="text-2xl">📝</span>
-            <h1 class="text-xl font-bold tracking-tight text-gray-800">MD Word Processor PWA</h1>
+<body class="bg-gray-50 h-screen flex flex-col overflow-hidden text-gray-900 font-sans selection:bg-indigo-200">
+
+  <!-- TOP APP BAR -->
+  <header class="bg-white border-b border-gray-200 px-4 py-3 flex items-center justify-between shrink-0 shadow-sm z-10">
+    <div class="flex items-center gap-2">
+      <div class="p-1.5 bg-indigo-600 rounded-lg text-white">
+        <i data-lucide="file-text" class="w-5 h-5"></i>
+      </div>
+      <h1 class="text-base font-bold tracking-tight text-gray-800">MobileDoc</h1>
+    </div>
+    <div class="flex items-center gap-2">
+      <button id="btn-export" class="p-2 text-gray-600 hover:text-indigo-600 hover:bg-gray-100 rounded-lg transition active:scale-95" title="Export HTML">
+        <i data-lucide="download" class="w-5 h-5"></i>
+      </button>
+    </div>
+  </header>
+
+  <!-- RICH TEXT FORMATTING TOOLBAR -->
+  <div class="bg-gray-100 border-b border-gray-200 px-3 py-1.5 flex items-center gap-1 overflow-x-auto shrink-0 scrollbar-none shadow-inner">
+    <button onclick="format('bold')" class="p-2 text-gray-700 hover:bg-white rounded-md transition active:scale-90" title="Bold"><i data-lucide="bold" class="w-4 h-4"></i></button>
+    <button onclick="format('italic')" class="p-2 text-gray-700 hover:bg-white rounded-md transition active:scale-90" title="Italic"><i data-lucide="italic" class="w-4 h-4"></i></button>
+    <button onclick="format('underline')" class="p-2 text-gray-700 hover:bg-white rounded-md transition active:scale-90" title="Underline"><i data-lucide="underline" class="w-4 h-4"></i></button>
+    <div class="w-px h-5 bg-gray-300 mx-1"></div>
+    <button onclick="format('insertHeading', 'h1')" class="p-1.5 font-extrabold text-sm text-gray-700 hover:bg-white rounded-md transition active:scale-90">H1</button>
+    <button onclick="format('insertHeading', 'h2')" class="p-1.5 font-bold text-sm text-gray-700 hover:bg-white rounded-md transition active:scale-90">H2</button>
+    <div class="w-px h-5 bg-gray-300 mx-1"></div>
+    <button onclick="format('insertUnorderedList')" class="p-2 text-gray-700 hover:bg-white rounded-md transition active:scale-90" title="Bullet List"><i data-lucide="list" class="w-4 h-4"></i></button>
+    <button onclick="format('insertOrderedList')" class="p-2 text-gray-700 hover:bg-white rounded-md transition active:scale-90" title="Numbered List"><i data-lucide="list-ordered" class="w-4 h-4"></i></button>
+    <div class="w-px h-5 bg-gray-300 mx-1"></div>
+    <button onclick="format('removeFormat')" class="p-2 text-red-600 hover:bg-white rounded-md transition active:scale-90" title="Clear Formatting"><i data-lucide="trash-2" class="w-4 h-4"></i></button>
+  </div>
+
+  <!-- EDITOR CANVAS -->
+  <main class="flex-1 overflow-y-auto px-4 py-4 pb-32">
+    <div 
+      id="editor" 
+      contenteditable="true" 
+      placeholder="Start typing your story here..." 
+      class="w-full min-h-[70vh] focus:outline-none text-base leading-relaxed text-gray-800 break-words"
+    ></div>
+  </main>
+
+  <!-- FIXED BOTTOM SHEET (STATUS BAR & HISTORY DROPDOWN) -->
+  <footer id="bottom-sheet" class="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 shadow-[0_-4px_12px_rgba(0,0,0,0.05)] transition-all duration-300 z-20 flex flex-col max-h-[80vh]">
+    
+    <!-- Collapsible Toggle Header Container -->
+    <div id="sheet-header" class="px-4 py-3 flex items-center justify-between cursor-pointer hover:bg-gray-50 border-b border-gray-100 shrink-0 select-none">
+      <div class="flex flex-col gap-0.5">
+        <!-- Live Counters & Analytics -->
+        <div class="flex items-center gap-2 text-xs font-medium text-gray-500">
+          <span id="word-count">0 words</span>
+          <span class="text-gray-300">•</span>
+          <span id="char-count">0 chars</span>
+          <span class="text-gray-300">•</span>
+          <span id="read-time">&lt; 1 min read</span>
         </div>
-        <div class="flex items-center space-x-3">
-            <button id="exportBtn" class="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded-lg font-medium text-sm transition-colors flex items-center shadow-sm">
-                📥 Export File
-            </button>
+        <!-- Save Status Indicators -->
+        <div class="flex items-center gap-1.5 text-[11px] text-gray-400 mt-0.5">
+          <span id="save-icon" class="w-2 h-2 rounded-full bg-green-500 transition-colors duration-300"></span>
+          <span id="save-timestamp">Ready to edit</span>
         </div>
-    </header>
+      </div>
+      
+      <div class="flex items-center gap-1.5 bg-gray-100 px-2.5 py-1.5 rounded-full text-xs font-semibold text-gray-600">
+        <span>History</span>
+        <i id="chevron-icon" data-lucide="chevron-up" class="w-3.5 h-3.5 transition-transform duration-300"></i>
+      </div>
+    </div>
 
-    <!-- Main Workspace -->
-    <main class="flex flex-1 overflow-hidden">
-        <!-- Editor Panel -->
-        <section class="w-1/2 flex flex-col border-r border-gray-200 bg-white">
-            <div class="bg-gray-50 px-4 py-2 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider flex justify-between items-center">
-                <span>Markdown Editor</span>
-                <span id="autoSaveStatus" class="text-indigo-600 font-medium">Auto-save ready</span>
-            </div>
-            <textarea id="editor" class="flex-1 p-6 resize-none focus:outline-none font-mono text-gray-800 text-sm leading-relaxed" placeholder="# Start writing your masterpiece here...
+    <!-- Expandable Saved Log Content Drawer -->
+    <div id="sheet-content" class="hidden overflow-y-auto bg-gray-50 p-3 max-h-[40vh]">
+      <div id="history-list" class="space-y-2">
+        <!-- Dynmically built version rows injected here -->
+        <div class="text-center text-xs text-gray-400 py-4">No saved versions found yet. Keep typing to auto-save.</div>
+      </div>
+    </div>
+  </footer>
 
-Use standard **Markdown** syntax to format your content. 
+  <!-- CORE SCRIPT LOGIC -->
+  <script>
+    // Initialise Icons
+    lucide.createIcons();
 
-## Features:
-- Real-time HTML preview
-- Auto-save history mechanism
-- Completely local first"></textarea>
-            <div class="bg-gray-50 px-4 py-2 border-t border-gray-200 text-xs text-gray-500 flex space-x-4">
-                <span id="wordCount">0 words</span>
-                <span id="charCount">0 characters</span>
-            </div>
-        </section>
+    // Elements Dom Cache
+    const editor = document.getElementById('editor');
+    const bottomSheet = document.getElementById('bottom-sheet');
+    const sheetHeader = document.getElementById('sheet-header');
+    const sheetContent = document.getElementById('sheet-content');
+    const chevronIcon = document.getElementById('chevron-icon');
+    const wordCountEl = document.getElementById('word-count');
+    const charCountEl = document.getElementById('char-count');
+    const readTimeEl = document.getElementById('read-time');
+    const saveIcon = document.getElementById('save-icon');
+    const saveTimestampEl = document.getElementById('save-timestamp');
+    const historyListEl = document.getElementById('history-list');
+    const btnExport = document.getElementById('btn-export');
 
-        <!-- Preview Panel -->
-        <section class="w-1/4 flex flex-col bg-gray-50">
-            <div class="bg-gray-100 px-4 py-2 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Live Preview
-            </div>
-            <div id="preview" class="flex-1 p-6 overflow-y-auto preview-body bg-white m-4 rounded-xl shadow-inner border border-gray-200"></div>
-        </section>
+    // State Variables
+    let isSheetOpen = false;
+    let historyLog = JSON.parse(localStorage.getItem('mobiledoc_history')) || [];
 
-        <!-- History Panel -->
-        <section class="w-1/4 flex flex-col border-l border-gray-200 bg-white">
-            <div class="bg-gray-50 px-4 py-2 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                Version History (Max 30)
-            </div>
-            <div id="historyList" class="flex-1 overflow-y-auto divide-y divide-gray-100 p-2 space-y-1">
-                <p class="text-xs text-gray-400 p-4 text-center italic">No versions recorded yet. Typing triggers automated tiered snapshots.</p>
-            </div>
-        </section>
-    </main>
+    // 1. Rich Text Formatting Wrapper Function
+    function format(command, value = null) {
+      document.execCommand(command, false, value);
+      editor.focus();
+      updateMetrics();
+    }
 
-    <script>
-        const editor = document.getElementById('editor');
-        const preview = document.getElementById('preview');
-        const wordCount = document.getElementById('wordCount');
-        const charCount = document.getElementById('charCount');
-        const exportBtn = document.getElementById('exportBtn');
-        const historyList = document.getElementById('historyList');
-        const autoSaveStatus = document.getElementById('autoSaveStatus');
+    // Custom helper specifically designed for handling structured header elements cleanly
+    document.addEventListener('click', function(e) {
+      if(e.target && e.target.onclick === null && e.target.innerText === 'H1') format('formatBlock', '<h1>');
+      if(e.target && e.target.onclick === null && e.target.innerText === 'H2') format('formatBlock', '<h2>');
+    });
 
-        // Init Draft
-        if (localStorage.getItem('current_draft')) {
-            editor.value = localStorage.getItem('current_draft');
+    // 2. Live Analytics Engine
+    function updateMetrics() {
+      const text = editor.innerText.trim();
+      const chars = text.length;
+      const words = text === "" ? 0 : text.split(/\s+/).length;
+      
+      // Reading time calculation framework (200 words per minute rule)
+      const readingMinutes = Math.ceil(words / 200);
+      
+      wordCountEl.textContent = `${words} ${words === 1 ? 'word' : 'words'}`;
+      charCountEl.textContent = `${chars} ${chars === 1 ? 'char' : 'chars'}`;
+      readTimeEl.textContent = readingMinutes <= 1 ? '< 1 min read' : `${readingMinutes} min read`;
+    }
+
+    editor.addEventListener('input', updateMetrics);
+
+    // 3. Dropdown Bottom Sheet Interface Toggle Logic
+    sheetHeader.addEventListener('click', () => {
+      isSheetOpen = !isSheetOpen;
+      if (isSheetOpen) {
+        sheetContent.classList.remove('hidden');
+        chevronIcon.style.transform = 'rotate(180deg)';
+        renderHistoryList();
+      } else {
+        sheetContent.classList.add('hidden');
+        chevronIcon.style.transform = 'rotate(0deg)';
+      }
+    });
+
+    // 4. Advanced Tiered Version Control Framework
+    function autoSaveEngine() {
+      const textData = editor.innerHTML;
+      if(!textData || textData.trim() === "<br>" || textData === "") return;
+
+      const now = new Date();
+      const currentTimestamp = now.getTime();
+
+      // Temporal Evaluation Filters
+      const fifteenMinsAgo = currentTimestamp - (15 * 60 * 1000);
+      const oneHourAgo = currentTimestamp - (60 * 60 * 1000);
+      const oneDayAgo = currentTimestamp - (24 * 60 * 60 * 1000);
+
+      // Filtering calculations to sort structural log states
+      const recentLogs = historyLog.filter(h => h.time > fifteenMinsAgo);
+      const hourlyLogs = historyLog.filter(h => h.time <= fifteenMinsAgo && h.time > oneDayAgo);
+      const olderLogs = historyLog.filter(h => h.time <= oneDayAgo);
+
+      let shouldSave = false;
+
+      if (recentLogs.length === 0) {
+        shouldSave = true; // Always save if completely fresh
+      } else {
+        // Minute checks for recent records
+        const lastLog = historyLog[0];
+        if (currentTimestamp - lastLog.time >= 60000) {
+          shouldSave = true;
         }
+      }
 
-        function updateMetricsAndPreview() {
-            const text = editor.value;
-            localStorage.setItem('current_draft', text);
-            
-            // Preview
-            preview.innerHTML = marked.parse(text || '*Empty file*');
-            
-            // Analytics
-            const cleanText = text.trim();
-            const words = cleanText === '' ? 0 : cleanText.split(/\s+/).length;
-            wordCount.textContent = `${words} word${words !== 1 ? 's' : ''}`;
-            charCount.textContent = `${text.length} character${text.length !== 1 ? 's' : ''}`;
-        }
+      if (shouldSave) {
+        // Visual indicator ping active animation rule
+        saveIcon.classList.remove('bg-green-500');
+        saveIcon.classList.add('bg-amber-500', 'animate-ping');
 
-        editor.addEventListener('input', updateMetricsAndPreview);
-        updateMetricsAndPreview();
-
-        // ⏱️ Tiered Auto-Save History Framework
-        function getHistory() {
-            return JSON.parse(localStorage.getItem('pwa_history') || '[]');
-        }
-
-        function saveHistory(history) {
-            localStorage.setItem('pwa_history', JSON.stringify(history));
-            renderHistory();
-        }
-
-        function triggerAutoSave() {
-            const content = editor.value;
-            if (!content.trim()) return;
-
-            const now = new Date();
-            const timestamp = now.getTime();
-            const currentHistory = getHistory();
-
-            if (currentHistory.length > 0) {
-                const latest = currentHistory[0];
-                const timeDiffMins = (timestamp - latest.timestamp) / (1000 * 60);
-
-                // Tiered logic evaluations
-                if (timeDiffMins < 1) {
-                    // Do not save more than once per minute
-                    return;
-                }
-
-                // If history spans past 15 mins, look for hourly/daily constraints
-                const ageOfOldestMins = (timestamp - currentHistory[currentHistory.length - 1].timestamp) / (1000 * 60);
-                
-                if (timeDiffMins < 15) {
-                    // Accept minute logs freely up to 15 mins
-                } else if (timeDiffMins < 60) {
-                    // Enforce hourly tier spacing
-                    const hoursPassedSinceLatest = (timestamp - latest.timestamp) / (1000 * 60 * 60);
-                    if (hoursPassedSinceLatest < 1) return;
-                } else {
-                    // Enforce daily tier spacing
-                    const daysPassedSinceLatest = (timestamp - latest.timestamp) / (1000 * 60 * 60 * 24);
-                    if (daysPassedSinceLatest < 1) return;
-                }
-            }
-
-            // Construct new snapshot
-            const newSnapshot = {
-                id: crypto.randomUUID ? crypto.randomUUID() : timestamp.toString(),
-                timestamp: timestamp,
-                timeString: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', second: '2-digit' }),
-                dateString: now.toLocaleDateString(),
-                content: content
-            };
-
-            currentHistory.unshift(newSnapshot);
-
-            // Restrict historical footprint to a strict maximum of 30 items
-            if (currentHistory.length > 30) {
-                currentHistory.pop();
-            }
-
-            saveHistory(currentHistory);
-            
-            autoSaveStatus.textContent = `Auto-saved at ${newSnapshot.timeString}`;
-            setTimeout(() => { autoSaveStatus.textContent = 'Auto-save ready'; }, 3000);
-        }
-
-        function renderHistory() {
-            const currentHistory = getHistory();
-            if (currentHistory.length === 0) {
-                historyList.innerHTML = '<p class="text-xs text-gray-400 p-4 text-center italic">No versions recorded yet. Tiered logs kick in every minute.</p>';
-                return;
-            }
-
-            historyList.innerHTML = currentHistory.map(item => `
-                <div class="p-3 hover:bg-gray-50 rounded-lg group transition-colors flex justify-between items-center text-xs">
-                    <div class="cursor-pointer flex-1" onclick="restoreVersion('${item.id}')">
-                        <p class="font-medium text-gray-700">${item.timeString}</p>
-                        <p class="text-gray-400 text-[10px]">${item.dateString} • ${item.content.length} chars</p>
-                    </div>
-                    <button onclick="restoreVersion('${item.id}')" class="hidden group-hover:block bg-indigo-50 text-indigo-600 px-2 py-1 rounded hover:bg-indigo-100 transition-colors">
-                        Restore
-                    </button>
-                </div>
-            `).join('');
-        }
-
-        window.restoreVersion = function(id) {
-            const currentHistory = getHistory();
-            const matched = currentHistory.find(item => item.id === id);
-            if (matched && confirm('Are you sure you want to revert to this archived version? Your current state will be updated.')) {
-                editor.value = matched.content;
-                updateMetricsAndPreview();
-            }
-        };
-
-        // Initialize historical panel rendering
-        renderHistory();
-
-        // Run auto-save loop checks every 30 seconds
-        setInterval(triggerAutoSave, 30000);
-
-        // Export Functionality
-        exportBtn.addEventListener('click', () => {
-            const blob = new Blob([editor.value], { type: 'text/markdown;charset=utf-8;' });
-            const url = URL.createObjectURL(blob);
-            const link = document.createElement('a');
-            link.href = url;
-            link.setAttribute('download', `document-${new Date().toISOString().slice(0,10)}.md`);
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-        });
-    </script>
-
-    <!-- Optional Minimal Service Worker Registration for offline context -->
-    <script>
-        if ('serviceWorker' in navigator) {
-            navigator.serviceWorker.register('sw.js').catch(() => {});
-        }
-    </script>
-</body>
-</html>
+        const newSaveEntry = {
