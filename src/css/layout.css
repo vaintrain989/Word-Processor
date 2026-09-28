@@ -17,3 +17,12 @@
   border: none;
   padding: 8px;
 }
+
+#header-dropdown {
+  position: absolute;
+  background: var(--toolbar-bg);
+  border: 1px solid var(--border);
+  padding: 4px 0;
+  display: none;
+  z-index: 100;
+}
