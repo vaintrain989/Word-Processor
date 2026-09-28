@@ -26,3 +26,15 @@
   display: none;
   z-index: 100;
 }
+
+#fontColorBtn {
+  position: relative;
+}
+
+#fontColorPreview {
+  width: 20px;
+  height: 3px;
+  background: #000000;
+  margin: 0 auto;
+  border-radius: 2px;
+}
