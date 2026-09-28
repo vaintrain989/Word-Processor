@@ -11,8 +11,7 @@
   <link rel="manifest" href="manifest.json" />
 
   <!-- Icons -->
-  <link rel="icon" href="icons/icon-192.png" sizes="192x192" />
-  <link rel="apple-touch-icon" href="icons/icon-512.png" />
+  <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <style>
     body {
@@ -50,14 +49,39 @@
 
 <body>
 
-  <div id="toolbar">
-    <!-- Placeholder toolbar buttons -->
-    <button onclick="document.execCommand('bold')"><b>B</b></button>
-    <button onclick="document.execCommand('italic')"><i>I</i></button>
-    <button onclick="document.execCommand('underline')"><u>U</u></button>
-    <button onclick="document.execCommand('formatBlock', false, 'h1')">H1</button>
-    <button onclick="document.execCommand('formatBlock', false, 'h2')">H2</button>
-  </div>
+<div id="toolbar">
+  <button onclick="document.execCommand('bold')">
+    <span class="material-icons">format_bold</span>
+  </button>
+
+  <button onclick="document.execCommand('italic')">
+    <span class="material-icons">format_italic</span>
+  </button>
+
+  <button onclick="document.execCommand('underline')">
+    <span class="material-icons">format_underlined</span>
+  </button>
+
+  <button onclick="document.execCommand('formatBlock', false, 'h1')">
+    <span class="material-icons">title</span>
+  </button>
+
+  <button onclick="document.execCommand('formatBlock', false, 'h2')">
+    <span class="material-icons">text_fields</span>
+  </button>
+
+  <button id="saveVersion">
+    <span class="material-icons">save</span>
+  </button>
+
+  <button id="exportFile">
+    <span class="material-icons">file_download</span>
+  </button>
+
+  <button id="importFile">
+    <span class="material-icons">file_upload</span>
+  </button>
+</div>
 
   <div id="editor" contenteditable="true">
     Start writing…
