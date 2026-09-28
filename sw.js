@@ -3,8 +3,8 @@ const CORE_ASSETS = [
   "./",
   "./index.html",
   "./manifest.json",
-  "./icons/icon-192.png",
-  "./icons/icon-512.png"
+  "https://fonts.googleapis.com/icon?family=Material+Icons",
+  "https://raw.githubusercontent.com/google/material-design-icons/master/png/product/iconfinder_product_299813.png"
 ];
 
 // Install
