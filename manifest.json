@@ -10,14 +10,15 @@
 
   "icons": [
     {
-      "src": "icons/icon-192.png",
+      "src": "https://raw.githubusercontent.com/google/material-design-icons/master/png/product/iconfinder_product_299813.png",
       "sizes": "192x192",
       "type": "image/png"
     },
     {
-      "src": "icons/icon-512.png",
+      "src": "https://raw.githubusercontent.com/google/material-design-icons/master/png/product/iconfinder_product_299813.png",
       "sizes": "512x512",
       "type": "image/png"
     }
   ]
 }
+
