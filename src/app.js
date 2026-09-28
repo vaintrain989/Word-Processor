@@ -59,3 +59,12 @@ fontColorPicker.addEventListener("input", () => {
   document.execCommand("foreColor", false, fontColorPicker.value);
   fontColorPreview.style.background = fontColorPicker.value;
 });
+
+const highlightBtn = document.getElementById("highlightBtn");
+const highlightPicker = document.getElementById("highlightPicker");
+
+highlightBtn.addEventListener("click", () => highlightPicker.click());
+
+highlightPicker.addEventListener("input", () => {
+  document.execCommand("hiliteColor", false, highlightPicker.value);
+});
