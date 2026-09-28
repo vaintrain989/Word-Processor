@@ -7,101 +7,234 @@
 
   <title>Word Processor PWA</title>
 
-  <!-- Manifest -->
-  <link rel="manifest" href="manifest.json" />
-
-  <!-- Icons -->
+  <!-- Material Icons -->
   <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
 
   <style>
+    :root {
+      --bg: #ffffff;
+      --fg: #111111;
+      --toolbar-bg: #f5f5f5;
+      --page-bg: #ffffff;
+      --border: #dddddd;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg: #121212;
+        --fg: #eaeaea;
+        --toolbar-bg: #1e1e1e;
+        --page-bg: #1a1a1a;
+        --border: #333333;
+      }
+    }
+
     body {
       margin: 0;
       font-family: system-ui, sans-serif;
-      background: #f7f7f7;
+      background: var(--bg);
+      color: var(--fg);
       height: 100vh;
       display: flex;
       flex-direction: column;
     }
 
+    #toolbar-wrapper {
+      border-bottom: 1px solid var(--border);
+      background: var(--toolbar-bg);
+    }
+
+    #toolbar-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 8px 10px;
+      cursor: pointer;
+    }
+
+    #toolbar-header span {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
     #toolbar {
       display: flex;
       gap: 8px;
-      padding: 10px;
-      background: #fff;
-      border-bottom: 1px solid #ddd;
+      padding: 8px 10px 10px;
       overflow-x: auto;
       white-space: nowrap;
     }
 
-    #editor {
+    #toolbar button {
+      border: none;
+      background: none;
+      padding: 6px;
+      cursor: pointer;
+      color: var(--fg);
+    }
+
+    #toolbar button:hover {
+      background: rgba(0,0,0,0.06);
+    }
+
+    .material-icons {
+      font-size: 22px;
+      vertical-align: middle;
+    }
+
+    #header-dropdown {
+      position: absolute;
+      background: var(--toolbar-bg);
+      border: 1px solid var(--border);
+      padding: 4px 0;
+      display: none;
+      z-index: 10;
+    }
+
+    #header-dropdown button {
+      display: block;
+      width: 100%;
+      text-align: left;
+      padding: 4px 10px;
+      border: none;
+      background: none;
+      color: var(--fg);
+      cursor: pointer;
+    }
+
+    #header-dropdown button:hover {
+      background: rgba(0,0,0,0.06);
+    }
+
+    #editor-container {
       flex: 1;
       padding: 20px;
+      background: var(--page-bg);
       overflow-y: auto;
-      background: #fff;
-      outline: none;
     }
 
-    #editor:focus {
+    #editor {
+      max-width: 800px;
+      margin: 0 auto;
+      min-height: calc(100vh - 80px);
       outline: none;
+      font-size: 18px;
+      line-height: 1.6;
     }
+
+    #editor h1 { font-size: 2em; margin-top: 1.4em; }
+    #editor h2 { font-size: 1.6em; margin-top: 1.2em; }
+    #editor p  { margin: 0.8em 0; }
   </style>
 </head>
-
 <body>
 
-<div id="toolbar">
-  <button onclick="document.execCommand('bold')">
-    <span class="material-icons">format_bold</span>
-  </button>
+  <div id="toolbar-wrapper">
+    <div id="toolbar-header">
+      <span>
+        <span class="material-icons">menu</span>
+        Toolbar
+      </span>
+      <span class="material-icons" id="toolbar-toggle-icon">expand_less</span>
+    </div>
 
-  <button onclick="document.execCommand('italic')">
-    <span class="material-icons">format_italic</span>
-  </button>
+    <div id="toolbar">
+      <!-- Undo / Redo -->
+      <button onclick="document.execCommand('undo')">
+        <span class="material-icons">undo</span>
+      </button>
+      <button onclick="document.execCommand('redo')">
+        <span class="material-icons">redo</span>
+      </button>
 
-  <button onclick="document.execCommand('underline')">
-    <span class="material-icons">format_underlined</span>
-  </button>
+      <!-- Bold / Italic / Underline -->
+      <button onclick="document.execCommand('bold')">
+        <span class="material-icons">format_bold</span>
+      </button>
+      <button onclick="document.execCommand('italic')">
+        <span class="material-icons">format_italic</span>
+      </button>
+      <button onclick="document.execCommand('underline')">
+        <span class="material-icons">format_underlined</span>
+      </button>
 
-  <button onclick="document.execCommand('formatBlock', false, 'h1')">
-    <span class="material-icons">title</span>
-  </button>
+      <!-- Header dropdown trigger -->
+      <button id="header-btn">
+        <span class="material-icons">title</span>
+      </button>
 
-  <button onclick="document.execCommand('formatBlock', false, 'h2')">
-    <span class="material-icons">text_fields</span>
-  </button>
+      <!-- Lists -->
+      <button onclick="document.execCommand('insertUnorderedList')">
+        <span class="material-icons">format_list_bulleted</span>
+      </button>
+      <button onclick="document.execCommand('insertOrderedList')">
+        <span class="material-icons">format_list_numbered</span>
+      </button>
 
-  <button id="saveVersion">
-    <span class="material-icons">save</span>
-  </button>
+      <!-- Indent / Outdent -->
+      <button onclick="document.execCommand('indent')">
+        <span class="material-icons">format_indent_increase</span>
+      </button>
+      <button onclick="document.execCommand('outdent')">
+        <span class="material-icons">format_indent_decrease</span>
+      </button>
 
-  <button id="exportFile">
-    <span class="material-icons">file_download</span>
-  </button>
+      <!-- Font color -->
+      <input type="color" id="fontColorPicker" title="Font color" />
+    </div>
+  </div>
 
-  <button id="importFile">
-    <span class="material-icons">file_upload</span>
-  </button>
-</div>
+  <!-- Header dropdown -->
+  <div id="header-dropdown">
+    <button onclick="document.execCommand('formatBlock', false, 'p')">Paragraph</button>
+    <button onclick="document.execCommand('formatBlock', false, 'h1')">Heading 1</button>
+    <button onclick="document.execCommand('formatBlock', false, 'h2')">Heading 2</button>
+    <button onclick="document.execCommand('formatBlock', false, 'h3')">Heading 3</button>
+  </div>
 
-  <div id="editor" contenteditable="true">
-    Start writing…
+  <div id="editor-container">
+    <div id="editor" contenteditable="true">
+      Start writing…
+    </div>
   </div>
 
   <script>
-    // Install prompt handling
-    let deferredPrompt;
-    window.addEventListener("beforeinstallprompt", (e) => {
-      e.preventDefault();
-      deferredPrompt = e;
-      console.log("PWA install available");
+    // Collapsible toolbar
+    const toolbarWrapper = document.getElementById('toolbar-wrapper');
+    const toolbar = document.getElementById('toolbar');
+    const toolbarHeader = document.getElementById('toolbar-header');
+    const toolbarToggleIcon = document.getElementById('toolbar-toggle-icon');
+
+    toolbarHeader.addEventListener('click', () => {
+      const isHidden = toolbar.style.display === 'none';
+      toolbar.style.display = isHidden ? 'flex' : 'none';
+      toolbarToggleIcon.textContent = isHidden ? 'expand_less' : 'expand_more';
     });
 
-    // Service worker registration
-    if ("serviceWorker" in navigator) {
-      navigator.serviceWorker.register("sw.js").then(() => {
-        console.log("Service worker registered");
-      });
-    }
+    // Header dropdown
+    const headerBtn = document.getElementById('header-btn');
+    const headerDropdown = document.getElementById('header-dropdown');
+
+    headerBtn.addEventListener('click', (e) => {
+      const rect = headerBtn.getBoundingClientRect();
+      headerDropdown.style.top = rect.bottom + 'px';
+      headerDropdown.style.left = rect.left + 'px';
+      headerDropdown.style.display =
+        headerDropdown.style.display === 'block' ? 'none' : 'block';
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!headerDropdown.contains(e.target) && e.target !== headerBtn) {
+        headerDropdown.style.display = 'none';
+      }
+    });
+
+    // Font color picker
+    const fontColorPicker = document.getElementById('fontColorPicker');
+    fontColorPicker.addEventListener('input', () => {
+      document.execCommand('foreColor', false, fontColorPicker.value);
+    });
   </script>
 
 </body>
