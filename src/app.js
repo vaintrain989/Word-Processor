@@ -68,3 +68,19 @@ highlightBtn.addEventListener("click", () => highlightPicker.click());
 highlightPicker.addEventListener("input", () => {
   document.execCommand("hiliteColor", false, highlightPicker.value);
 });
+
+const insertImageBtn = document.getElementById("insertImageBtn");
+const imageInput = document.getElementById("imageInput");
+
+insertImageBtn.addEventListener("click", () => imageInput.click());
+
+imageInput.addEventListener("change", () => {
+  const file = imageInput.files[0];
+  if (!file) return;
+
+  const reader = new FileReader();
+  reader.onload = () => {
+    document.execCommand("insertImage", false, reader.result);
+  };
+  reader.readAsDataURL(file);
+});
