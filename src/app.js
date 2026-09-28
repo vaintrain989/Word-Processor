@@ -5,6 +5,29 @@ import { generateOutline, renderOutline } from "./modules/outline.js";
 
 const editorElement = document.getElementById("editor");
 const outlineContainer = document.getElementById("outline");
+const headerBtn = document.getElementById("header-btn");
+const headerDropdown = document.getElementById("header-dropdown");
+
+headerBtn.addEventListener("click", (e) => {
+  const rect = headerBtn.getBoundingClientRect();
+  headerDropdown.style.top = rect.bottom + "px";
+  headerDropdown.style.left = rect.left + "px";
+  headerDropdown.style.display =
+    headerDropdown.style.display === "block" ? "none" : "block";
+});
+
+headerDropdown.querySelectorAll("button").forEach(btn => {
+  btn.addEventListener("click", () => {
+    document.execCommand("formatBlock", false, btn.dataset.header);
+    headerDropdown.style.display = "none";
+  });
+});
+
+document.addEventListener("click", (e) => {
+  if (!headerDropdown.contains(e.target) && e.target !== headerBtn) {
+    headerDropdown.style.display = "none";
+  }
+});
 
 const editor = createTipTapEditor(editorElement);
 
