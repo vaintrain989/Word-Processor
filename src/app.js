@@ -48,3 +48,14 @@ setInterval(() => {
   const outline = generateOutline(editorElement);
   renderOutline(outline, outlineContainer);
 }, 1000);
+
+const fontColorBtn = document.getElementById("fontColorBtn");
+const fontColorPicker = document.getElementById("fontColorPicker");
+const fontColorPreview = document.getElementById("fontColorPreview");
+
+fontColorBtn.addEventListener("click", () => fontColorPicker.click());
+
+fontColorPicker.addEventListener("input", () => {
+  document.execCommand("foreColor", false, fontColorPicker.value);
+  fontColorPreview.style.background = fontColorPicker.value;
+});
